@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>urlshortner</title>
+<style>
+	input	{
+	height:22px;
+	width :600px;	
+	}
+
+	button{
+		height:40px;
+		width:70px;
+		cursor:grab;
+
+	}
+	button:hover{
+		background-color:lightblue;  
+	}
+	::placeholder {
+ color:red;
+ /*font-size-left: 40px;*/
+}
+</style>
+</head>
+<body>
+<h1 style="margin-left:500px;">URL SHORTNER SOFTWARE</h1>
+<br/>
+<p>short your url here </p>
+<input name="url" id ="id1" placeholder ="write your url here that you want to create" >
+<button onclick="shortit()">short it</button>
+<br/>
+<p>delete url from database</p>
+<input  id ="id2" placeholder ="write your url here that you want to delete" >
+<button onclick="deletedata()">delete it</button>
+<br/>
+<p>Update shorturl</p>
+<input  id ="id3" placeholder ="write your url here that you want to update" >
+<input  id ="id4" placeholder ="write your custom url PARAMETER  here for eg /d456 of https://localhost:3000/d456" >
+<button onclick="updatedata()">update it</button>
+<p>Update originalurl</p>
+<input  id ="id5" placeholder ="write your original url here that you want to update" >
+<input  id ="id6" placeholder ="write your custom url PARAMETER  here for eg /d456 of https://localhost:3000/d456" >
+<button onclick="updatedata1()">update it</button>
+<br/>
+<div>
+<table style="width:100%" id="t1">
+  <tr>
+    <th>url</th>
+    <th>urlshort</th> 
+  </tr>
+  <!-- <tr>
+    <td id="i1"></td>
+    <td id="i2"></td>
+    
+  </tr> -->
+  </table>
+</div>
+<script>
+	const xml=new XMLHttpRequest();
+	const retrive=new XMLHttpRequest();
+retrive.open("GET","http://localhost:3000/retrive")
+ retrive.setRequestHeader("Content-Type", "application/json");
+retrive.send();
+var updatedata1=()=>{
+	xml.open('PUT',"http://localhost:3000/update");
+xml.setRequestHeader("Content-Type", "application/json");
+  xml.send(JSON.stringify({'url': document.getElementById("id5").value,'updateurl': document.getElementById("id6").value,"flag":1}));	
+}
+var updatedata=()=>{
+	xml.open('PUT',"http://localhost:3000/update");
+xml.setRequestHeader("Content-Type", "application/json");
+  xml.send(JSON.stringify({'url': document.getElementById("id3").value,'updateurl': document.getElementById("id4").value,"flag":0}));	
+}
+
+var deletedata =()=>{
+	xml.open('DELETE',"http://localhost:3000/delete");
+xml.setRequestHeader("Content-Type", "application/json");
+  xml.send(JSON.stringify({'deleteurl': document.getElementById("id2").value}));	
+}
+function shortit(){
+	 xml.open("POST","http://localhost:3000/short");
+  xml.setRequestHeader("Content-Type", "application/json");
+  xml.send(JSON.stringify({
+  	'url':document.getElementById("id1").value
+  }
+  )
+  )
+}
+retrive.onload=()=>{
+
+	var array = JSON.parse(retrive.response);
+if(array.value === 1){
+	window.alert("something get wornged");
+}else{
+	array=array.da;
+	for(index=0;index<array.length;index++){
+		  var table = document.getElementById("t1");
+  // var x = document.createElement("BUTTON");
+  // var t =document.createTextNode("delete");
+  //   x.appendChild(t);
+  var row = table.insertRow(1);
+  var cell1 = row.insertCell(0);
+  var cell2 = row.insertCell(1);
+// var button1 = row.insertCell(2);
+// var button2 = row.insertCell(3);
+   cell1.innerHTML = array[index].url;
+   // http://localhost:3000/
+  cell2.innerHTML = "http://localhost:3000/"+array[index].urlshort;
+//   var x = document.createElement("BUTTON");
+//    var t =document.createTextNode("delete");
+//      x.appendChild(t);
+//      x.addEventListener("click",deletedata());
+// button1.append(x);
+		
+       	
+	}
+}
+	
+}
+xml.onload=()=>{
+
+		var q=JSON.parse(xml.response);
+		// alert(q.msg.errors.name);
+			console.log(q.msg);
+			if(q.value==0){	 
+			 var table = document.getElementById("t1");
+  var row = table.insertRow(0);
+  var cell1 = row.insertCell(0);
+  var cell2 = row.insertCell(1);
+  cell1.innerHTML = q.url;
+  cell2.innerHTML =  q.shorturl;
+  window.alert(q.msg);
+			}else if(q.value==2){
+                    location.replace(q.url);
+			}else{
+				window.alert(q.msg);
+				location.reload();
+		
+			}
+
+		}
+
+	</script>
+</body>
+</html>
